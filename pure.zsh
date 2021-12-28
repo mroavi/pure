@@ -222,6 +222,10 @@ prompt_pure_precmd() {
 		export VIRTUAL_ENV_DISABLE_PROMPT=12
 	fi
 
+  # mrv: Check if we should display the tmux indicator. 
+  # mrv: I use a suffciently high index of psvar (11) to avoid collisions.
+  [[ -n "$TMUX" ]] && psvar[11]="tmux"
+
 	# Nix package manager integration. If used from within 'nix shell' - shell name is shown like so:
 	# ~/Projects/flake-utils-plus master
 	# flake-utils-plus ❯
@@ -815,6 +819,7 @@ prompt_pure_setup() {
 		user                 242
 		user:root            default
 		virtualenv           242
+    tmux                 242
 	)
 	prompt_pure_colors=("${(@kv)prompt_pure_colors_default}")
 
@@ -831,8 +836,11 @@ prompt_pure_setup() {
 		add-zle-hook-widget zle-keymap-select prompt_pure_update_vim_prompt_widget
 	fi
 
+  # mrv: If tmux is running, display it in gray.
+  PROMPT='%(11V.%F{$prompt_pure_colors[tmux]}%11v%f .)'
+
 	# If a virtualenv is activated, display it in grey.
-	PROMPT='%(12V.%F{$prompt_pure_colors[virtualenv]}%12v%f .)'
+	PROMPT+='%(12V.%F{$prompt_pure_colors[virtualenv]}%12v%f .)'
 
 	# Prompt turns red if the previous command didn't exit with 0.
 	local prompt_indicator='%(?.%F{$prompt_pure_colors[prompt:success]}.%F{$prompt_pure_colors[prompt:error]})${prompt_pure_state[prompt]}%f '
